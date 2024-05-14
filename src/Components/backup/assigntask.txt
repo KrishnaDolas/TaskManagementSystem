@@ -1,0 +1,96 @@
+import React, { useState } from 'react';
+import { Card, TextField, Button, Grid, Autocomplete, TextareaAutosize, Typography } from '@mui/material';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import MiniDrawer from './MiniDrawer';
+import { useTasks } from './Context/TasksContext';
+import Alert from '@mui/material/Alert';
+import Stack from '@mui/material/Stack';
+
+const AssignTask = () => {
+  const { tasks, setTasks } = useTasks();
+  const [project, setProject] = useState('');
+  const [assignTo, setAssignTo] = useState('');
+  const [taskTitle, setTaskTitle] = useState('');
+  const [taskDescription, setTaskDescription] = useState('');
+  const [showAlert, setShowAlert] = useState(false); // State to control the visibility of the alert
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const newTask = {
+      name: taskTitle,
+      date: new Date().toLocaleDateString(),
+      description: taskDescription
+    };
+    setTasks([...tasks, newTask]);
+    setTaskTitle('');
+    setTaskDescription('');
+    setShowAlert(true); // Show the alert when a task is created
+    // Hide the alert after 3 seconds
+    setTimeout(() => {
+      setShowAlert(false);
+    }, 3000);
+  };
+
+  return (
+    <MiniDrawer>
+      <Card style={{ padding: "20px" }}>
+        <Typography variant="h6" gutterBottom>Assign Task</Typography>
+        <form onSubmit={handleSubmit}>
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <Autocomplete
+                fullWidth
+                options={['Project A', 'Project B', 'Project C']}
+                value={project}
+                onChange={(event, newValue) => setProject(newValue)}
+                renderInput={(params) => <TextField {...params} label="Project" variant="outlined" />}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <Autocomplete
+                fullWidth
+                options={['User 1', 'User 2', 'User 3']}
+                value={assignTo}
+                onChange={(event, newValue) => setAssignTo(newValue)}
+                renderInput={(params) => <TextField {...params} label="Assign To" variant="outlined" />}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Task Title"
+                variant="outlined"
+                value={taskTitle}
+                onChange={(event) => setTaskTitle(event.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextareaAutosize
+                rows={4}
+                placeholder="Please describe the task..."
+                style={{ width: '100%', resize: 'vertical', height: '30%' }}
+                value={taskDescription}
+                onChange={(event) => setTaskDescription(event.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Button variant="contained" color="primary" type="submit" endIcon={<NavigateNextIcon />}>
+                Create Task
+              </Button>
+            </Grid>
+          </Grid>
+        </form>
+      </Card>
+      {/* Conditional rendering of the Alert component */}
+      {showAlert && (
+        <Stack sx={{ position: 'fixed', top: 20, right: 20, zIndex: 9999 }} spacing={2}>
+          <Alert variant="filled" severity="success">
+            Task has been created successfully!
+          </Alert>
+        </Stack>
+      )}
+    </MiniDrawer>
+  );
+};
+
+export default AssignTask;
